@@ -316,10 +316,7 @@ const GLubyte Indices[] = {
 
 // Replace initWithFrame with this
 - (id)initWithFrame:(CGRect)frame
-{
-    // Remove call to render in initWithFrame and replace it with the following
-//    [self setupDisplayLink];
-    
+{   
     self = [super initWithFrame:frame];
     if (self) {
         [self setupLayer];
