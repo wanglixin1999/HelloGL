@@ -20,10 +20,10 @@ typedef struct {
 //    {{-1, -1, 0}, {0, 0, 0, 1}}
 //};
 
-const GLubyte Indices[] = {
-    0, 1, 2,
-    2, 3, 0
-};
+//const GLubyte Indices[] = {
+//    0, 1, 2,
+//    2, 3, 0
+//};
 
 
 // Modify vertices so they are within projection near/far planes
@@ -37,11 +37,42 @@ const GLubyte Indices[] = {
 
 
 // Revert vertices back to z-value 0
+//const Vertex Vertices[] = {
+//    {{1, -1, 0}, {1, 0, 0, 1}},
+//    {{1, 1, 0}, {0, 1, 0, 1}},
+//    {{-1, 1, 0}, {0, 0, 1, 1}},
+//    {{-1, -1, 0}, {0, 0, 0, 1}}
+//};
+
 const Vertex Vertices[] = {
     {{1, -1, 0}, {1, 0, 0, 1}},
-    {{1, 1, 0}, {0, 1, 0, 1}},
-    {{-1, 1, 0}, {0, 0, 1, 1}},
-    {{-1, -1, 0}, {0, 0, 0, 1}}
+    {{1, 1, 0}, {1, 0, 0, 1}},
+    {{-1, 1, 0}, {0, 1, 0, 1}},
+    {{-1, -1, 0}, {0, 1, 0, 1}},
+    {{1, -1, -1}, {1, 0, 0, 1}},
+    {{1, 1, -1}, {1, 0, 0, 1}},
+    {{-1, 1, -1}, {0, 1, 0, 1}},
+    {{-1, -1, -1}, {0, 1, 0, 1}}
+};
+const GLubyte Indices[] = {
+    // Front
+    0, 1, 2,
+    2, 3, 0,
+    // Back
+    4, 6, 5,
+    4, 7, 6,
+    // Left
+    2, 7, 3,
+    7, 6, 2,
+    // Right
+    0, 4, 1,
+    4, 1, 5,
+    // Top
+    6, 2, 1,
+    1, 6, 5,
+    // Bottom
+    0, 3, 7,
+    0, 7, 4     
 };
 
 
@@ -82,6 +113,10 @@ const Vertex Vertices[] = {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                               GL_RENDERBUFFER, _colorRenderBuffer);
+    
+    
+    // Add to end of setupFrameBuffer
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderBuffer);
 }
 
 
@@ -89,6 +124,13 @@ const Vertex Vertices[] = {
 - (void)setupDisplayLink {
     CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(render:)];
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+}
+
+// Add new method right after setupRenderBuffer
+- (void)setupDepthBuffer {
+    glGenRenderbuffers(1, &_depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, self.frame.size.width, self.frame.size.height);
 }
 
 //- (void)render {
@@ -132,7 +174,11 @@ const Vertex Vertices[] = {
 // Modify render method to take a parameter
 - (void)render:(CADisplayLink*)displayLink {
     glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT);
+    
+    // In the render method, replace the call to glClear with the following
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
     
     // Add to render, right before the call to glViewport
     CC3GLMatrix *projection = [CC3GLMatrix matrix];
@@ -278,6 +324,10 @@ const Vertex Vertices[] = {
     if (self) {
         [self setupLayer];
         [self setupContext];
+        
+        // Add to initWithFrame, right before call to setupRenderBuffer
+        [self setupDepthBuffer];
+        
         [self setupRenderBuffer];
         [self setupFrameBuffer];
         

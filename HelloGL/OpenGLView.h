@@ -29,8 +29,8 @@
     GLuint _modelViewUniform;
     
     float _currentRotation;
-//    CC3GLMatrix *modelView;
-//    CADisplayLink* displayLink;
+    
+    GLuint _depthRenderBuffer;
 }
 
 @end
