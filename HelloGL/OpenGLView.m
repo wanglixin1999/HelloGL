@@ -111,8 +111,7 @@ const GLubyte Indices[] = {
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                              GL_RENDERBUFFER, _colorRenderBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderBuffer);
     
     
     // Add to end of setupFrameBuffer
@@ -209,6 +208,8 @@ const GLubyte Indices[] = {
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]),
                    GL_UNSIGNED_BYTE, 0);
     [_context presentRenderbuffer:GL_RENDERBUFFER];
+    
+    glDisable(GL_DEPTH_TEST);
     
     // Remove call to render in initWithFrame and replace it with the following
     [self setupDisplayLink];
@@ -316,7 +317,7 @@ const GLubyte Indices[] = {
 
 // Replace initWithFrame with this
 - (id)initWithFrame:(CGRect)frame
-{   
+{
     self = [super initWithFrame:frame];
     if (self) {
         [self setupLayer];
